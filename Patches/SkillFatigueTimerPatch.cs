@@ -8,8 +8,6 @@ using kvan.RaidSkillInfo.Helpers;
 using System;
 using UnityEngine;
 using TMPro;
-using System.Collections;
-using System.Collections.ObjectModel;
 
 namespace kvan.RaidSkillInfo.Patches
 {
@@ -27,6 +25,7 @@ namespace kvan.RaidSkillInfo.Patches
 			}
 		}
 	}
+
 	internal class SkillFatigueTimerPatch : ModulePatch
 	{
 		public static readonly ObservableDictionary<ESkillId, float> TimeRemaining = new ObservableDictionary<ESkillId, float>();
@@ -90,16 +89,37 @@ namespace kvan.RaidSkillInfo.Patches
 		{
 			if (fatigueTimerTexts.TryGetValue(skillId, out var fatigueTimerText))
 			{
+				// Update the text with the remaining time
 				fatigueTimerText.text = timeRemaining >= 0 && timeRemaining < 1e5f ? timeRemaining.ToString("F0") : string.Empty;
+			}
+
+			// Update the tooltip if it is showing the same skill
+			if (SkillFatigueTimerTooltipPatch.currentSkill != null && SkillFatigueTimerTooltipPatch.currentSkill.Id == skillId)
+			{
+				SkillFatigueTimerTooltipPatch.UpdateTooltipDescription(skillId, timeRemaining);
 			}
 		}
 	}
 
 	internal class SkillFatigueTimerTooltipPatch : ModulePatch
 	{
+		public static SkillClass currentSkill;
+		public static TextMeshProUGUI tooltipDescription;
+
 		protected override MethodBase GetTargetMethod()
 		{
 			return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), new Type[] { typeof(SkillClass) });
+		}
+
+		public SkillFatigueTimerTooltipPatch()
+		{
+			SkillFatigueTimerPatch.TimeRemaining.OnValueChanged += (skillId, timeRemaining) =>
+			{
+				if (currentSkill != null && currentSkill.Id == skillId)
+				{
+					UpdateTooltipDescription(skillId, timeRemaining);
+				}
+			};
 		}
 
 		[PatchPostfix]
@@ -110,13 +130,43 @@ namespace kvan.RaidSkillInfo.Patches
 				return;
 			}
 
+			currentSkill = skill;
+
+			tooltipDescription = AccessTools.Field(typeof(SkillTooltip), "_description").GetValue(__instance) as TextMeshProUGUI;
+
 			if (skill != null && SkillFatigueTimerPatch.TimeRemaining.TryGetValue(skill.Id, out float timeRemaining))
 			{
-				TextMeshProUGUI tooltipDescription = AccessTools.Field(typeof(SkillTooltip), "_description").GetValue(__instance) as TextMeshProUGUI;
+				UpdateTooltipDescription(skill.Id, timeRemaining);
+			}
+		}
 
+		public static void UpdateTooltipDescription(ESkillId skillId, float timeRemaining)
+		{
+			if (tooltipDescription == null)
+			{
+				return;
+			}
+
+			string newLine = $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
+			string[] lines = tooltipDescription.text.Split('\n');
+
+			if (lines.Length > 0 && lines[lines.Length - 1].StartsWith("<color=#C40000FF>Time remaining:"))
+			{
 				if (timeRemaining >= 0 && timeRemaining < 1e5f)
 				{
-					tooltipDescription.text += $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
+					lines[lines.Length - 1] = newLine.Trim();
+				}
+				else
+				{
+					lines[lines.Length - 1] = string.Empty;
+				}
+				tooltipDescription.text = string.Join("\n", lines);
+			}
+			else
+			{
+				if (timeRemaining >= 0 && timeRemaining < 1e5f)
+				{
+					tooltipDescription.text += newLine;
 				}
 			}
 		}
