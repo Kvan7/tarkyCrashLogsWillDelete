@@ -36,6 +36,7 @@ namespace kvan.RaidSkillInfo
 			new BuffIconPatch().Enable();
 			new BuffTooltipPatch().Enable();
 			new SkillFatigueTimerPatch().Enable();
+			new SkillFatigueTimerTooltipPatch().Enable();
 
 			Hook = new GameObject("PluginHook"); // create a new gameobject instance along with its name
 			Hook.AddComponent<SkillDeterminer>(); // mount mono script to hook using the class name of your mono script

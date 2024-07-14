@@ -62,9 +62,6 @@ namespace kvan.RaidSkillInfo.Patches
 
 	internal class SkillFatigueTimerTooltipPatch : ModulePatch
 	{
-		// Dictionary to store the original effectiveness for each skill ID
-		private static readonly Dictionary<ESkillId, float> originalEffectivenessMap = new Dictionary<ESkillId, float>();
-
 		protected override MethodBase GetTargetMethod()
 		{
 			return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), new Type[] { typeof(SkillClass) });
@@ -73,10 +70,12 @@ namespace kvan.RaidSkillInfo.Patches
 		[PatchPostfix]
 		static void Postfix(SkillTooltip __instance, SkillClass skill)
 		{
+			// Utils.LogMessage("POSTFIX RUNNY");
 			if (!Utils.InRaid())
 			{
 				return;
 			}
+			// Utils.LogMessage("IN Raid");
 
 			if (skill != null && SkillFatigueTimerPatch.TimeRemaining.TryGetValue(skill.Id, out float timeRemaining))
 			{
@@ -86,6 +85,13 @@ namespace kvan.RaidSkillInfo.Patches
 				{
 					tooltipDescription.text += $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
 				}
+
+				// tooltipDescription.text = "BANANA MEow";
+				Utils.LogMessage("Tooltip updated");
+			}
+			else
+			{
+				Utils.LogError("Tooltip not updated, value false");
 			}
 		}
 	}
