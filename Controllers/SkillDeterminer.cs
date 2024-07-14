@@ -7,6 +7,8 @@ using UnityEngine;
 using kvan.RaidSkillInfo.Helpers;
 using Comfort.Common;
 using EFT.UI;
+using Newtonsoft.Json;
+using kvan.RaidSkillInfo.Patches;
 
 namespace kvan.RaidSkillInfo.Controllers
 {
@@ -28,8 +30,11 @@ namespace kvan.RaidSkillInfo.Controllers
 
 			if (!Utils.InRaid())
 			{
+				if (lastInRaid)
+				{
+					ClearCache();
+				}
 				lastInRaid = false;
-				ClearCache();
 				return false;
 			}
 			return true;
@@ -80,7 +85,8 @@ namespace kvan.RaidSkillInfo.Controllers
 			// Get private float
 			float fatigueTime = (float)AccessTools.Field(typeof(SkillClass), "float_4").GetValue(skill);
 			ESkillId skillId = skill.Id;
-			if (Time.time > fatigueTime)
+			float timeRemaining = fatigueTime - Time.time;
+			if (timeRemaining < 0)
 			{
 				// Send toast if enabled
 				if ((MyConfig.EnableToasts.Value == ToastsState.All
@@ -101,6 +107,10 @@ namespace kvan.RaidSkillInfo.Controllers
 			{
 				// remove from skill list
 				SpecificSkills.Remove(skillId);
+			}
+			if (MyConfig.ShowTimeRemaining.Value)
+			{
+				SkillFatigueTimerPatch.TimeRemaining[skillId] = timeRemaining;
 			}
 		}
 

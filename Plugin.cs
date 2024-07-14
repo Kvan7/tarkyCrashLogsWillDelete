@@ -35,6 +35,7 @@ namespace kvan.RaidSkillInfo
 			//uncomment the line below and replace "PatchClassName" with the class name you gave your patch. Patches must be enabled like this to work.
 			new BuffIconPatch().Enable();
 			new BuffTooltipPatch().Enable();
+			new SkillFatigueTimerPatch().Enable();
 
 			Hook = new GameObject("PluginHook"); // create a new gameobject instance along with its name
 			Hook.AddComponent<SkillDeterminer>(); // mount mono script to hook using the class name of your mono script

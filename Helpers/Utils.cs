@@ -6,6 +6,7 @@ using SPT.Common.Http;
 using SPT.Reflection.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +34,8 @@ namespace kvan.RaidSkillInfo.Helpers
 
 		public static bool InRaid()
 		{
-			return Singleton<GameWorld>.Instance?.MainPlayer?.Location != "hideout";
+			string location = Singleton<GameWorld>.Instance?.MainPlayer?.Location ?? string.Empty;
+			return !location.IsNullOrEmpty() && location != "hideout";
 		}
 
 
