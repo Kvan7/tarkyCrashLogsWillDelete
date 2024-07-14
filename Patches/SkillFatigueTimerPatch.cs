@@ -67,13 +67,6 @@ namespace kvan.RaidSkillInfo.Patches
 			var skillClass = AccessTools.Field(typeof(SkillPanel), "skillClass").GetValue(__instance) as SkillClass;
 			if (skillClass == null) return;
 
-			// Remove old TextMeshProUGUI element if it exists
-			if (fatigueTimerTexts.TryGetValue(skillClass.Id, out var existingText))
-			{
-				GameObject.Destroy(existingText.gameObject);
-				fatigueTimerTexts.Remove(skillClass.Id);
-			}
-
 			// Create a new TextMeshProUGUI element
 			var fatigueTimerText = new GameObject("FatigueTimerText").AddComponent<TextMeshProUGUI>();
 			fatigueTimerText.transform.SetParent(effectivenessDownObject.transform, false);
@@ -91,8 +84,6 @@ namespace kvan.RaidSkillInfo.Patches
 			// Position the text element as the first or last sibling
 			fatigueTimerText.transform.SetAsLastSibling(); // or use SetAsFirstSibling() if you want it at the start
 
-			// Update the text element immediately
-			UpdateFatigueTimerText(skillClass.Id, TimeRemaining.ContainsKey(skillClass.Id) ? TimeRemaining[skillClass.Id] : 0f);
 		}
 
 		private static void UpdateFatigueTimerText(ESkillId skillId, float timeRemaining)
