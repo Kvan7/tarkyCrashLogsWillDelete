@@ -1,14 +1,8 @@
 using SPT.Reflection.Patching;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using EFT;
 using EFT.Communications;
-using System.Runtime.CompilerServices;
 
 //this example patch will limit the number of jumps you can do to 3, and log whether or not your jump was successful
 
