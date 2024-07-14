@@ -32,19 +32,27 @@ namespace kvan.RaidSkillInfo.Patches
 				return;
 			}
 
-			// Add in new text
-			Transform buffsContainer = AccessTools.Field(typeof(SkillPanel), "_buffsContainer").GetValue(__instance) as Transform;
+			// Get the _effectivenessDown GameObject
+			GameObject effectivenessDownObject = AccessTools.Field(typeof(SkillPanel), "_effectivenessDown").GetValue(__instance) as GameObject;
+
+			if (effectivenessDownObject == null)
+			{
+				Debug.LogError("_effectivenessDown GameObject not found");
+				return;
+			}
 
 			// Create a new TextMeshProUGUI element
-			var fatigueTimerText = new GameObject("BuffCountText").AddComponent<TextMeshProUGUI>();
-			fatigueTimerText.transform.SetParent(buffsContainer, false);
+			var fatigueTimerText = new GameObject("FatigueTimerText").AddComponent<TextMeshProUGUI>();
+			fatigueTimerText.transform.SetParent(effectivenessDownObject.transform, false);
 
 			// Set the font size, color, and alignment
-			fatigueTimerText.fontSize = 16;
+			fatigueTimerText.fontSize = 14;
 			fatigueTimerText.color = Color.red;
 			fatigueTimerText.alignment = TextAlignmentOptions.Center;
+			RectTransform rectTransform = fatigueTimerText.GetComponent<RectTransform>();
+			rectTransform.anchoredPosition = new Vector2(-20, 0);
 
-			// Get the skill class to determine the number of buffs
+			// Get the skill class to determine the time remaining
 			var skillClass = AccessTools.Field(typeof(SkillPanel), "skillClass").GetValue(__instance) as SkillClass;
 			if (skillClass != null)
 			{
@@ -54,8 +62,8 @@ namespace kvan.RaidSkillInfo.Patches
 				}
 			}
 
-			// Position the text element as the first or last sibling
-			fatigueTimerText.transform.SetAsLastSibling(); // or use SetAsLastSibling() if you want it at the end
+			// Optionally position the text element as the first or last sibling
+			fatigueTimerText.transform.SetAsLastSibling(); // or use SetAsFirstSibling() if you want it at the start
 		}
 	}
 
@@ -70,12 +78,10 @@ namespace kvan.RaidSkillInfo.Patches
 		[PatchPostfix]
 		static void Postfix(SkillTooltip __instance, SkillClass skill)
 		{
-			// Utils.LogMessage("POSTFIX RUNNY");
 			if (!Utils.InRaid())
 			{
 				return;
 			}
-			// Utils.LogMessage("IN Raid");
 
 			if (skill != null && SkillFatigueTimerPatch.TimeRemaining.TryGetValue(skill.Id, out float timeRemaining))
 			{
@@ -85,13 +91,6 @@ namespace kvan.RaidSkillInfo.Patches
 				{
 					tooltipDescription.text += $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
 				}
-
-				// tooltipDescription.text = "BANANA MEow";
-				Utils.LogMessage("Tooltip updated");
-			}
-			else
-			{
-				Utils.LogError("Tooltip not updated, value false");
 			}
 		}
 	}

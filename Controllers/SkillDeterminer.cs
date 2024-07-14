@@ -17,7 +17,6 @@ namespace kvan.RaidSkillInfo.Controllers
 		private SkillManager SkillManager => Utils.GetActiveSkillManager();
 		private GameWorld GameWorld => Singleton<GameWorld>.Instance;
 		private float elapsedTime = 0f;
-		private const float logInterval = 10f;
 
 		private bool lastInRaid = false;
 		SkillClass[] SkillClasses => SkillManager.DisplayList;
@@ -53,7 +52,7 @@ namespace kvan.RaidSkillInfo.Controllers
 				return;
 			}
 			elapsedTime += Time.deltaTime;
-			if (elapsedTime >= logInterval)
+			if (elapsedTime >= MyConfig.RefreshTime.Value)
 			{
 				CheckSkillFatigue();
 				elapsedTime = 0f; // Reset the elapsed time

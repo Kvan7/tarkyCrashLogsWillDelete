@@ -18,6 +18,7 @@ namespace kvan.RaidSkillInfo.Helpers
 	{
 		public static ConfigEntry<ToastsState> EnableToasts;
 		public static ConfigEntry<bool> ShowTimeRemaining;
+		public static ConfigEntry<int> RefreshTime;
 		public static Dictionary<ESkillId, ConfigEntry<bool>> SkillToasts = new Dictionary<ESkillId, ConfigEntry<bool>>();
 
 		public static void InitializeConfig(ConfigFile Config)
@@ -29,13 +30,24 @@ namespace kvan.RaidSkillInfo.Helpers
 				ToastsState.All,
 				new ConfigDescription("Whether to get notification toasts when a skill's fatigue expires",
 				null,
-				new ConfigurationManagerAttributes { IsAdvanced = false, ShowRangeAsPercent = false, Order = 0 }));
+				new ConfigurationManagerAttributes { IsAdvanced = false, ShowRangeAsPercent = false, Order = 999 }));
 
 			ShowTimeRemaining = Config.Bind(
 				"General",
 				"Show Reset Time Remaining",
 				true,
-				new ConfigDescription("Show the time remaining until the skill's fatigue resets on the skills screen", null, new ConfigurationManagerAttributes { IsAdvanced = false, ShowRangeAsPercent = false, Order = 1 })
+				new ConfigDescription("Show the time remaining until the skill's fatigue resets on the skills screen",
+				null,
+				new ConfigurationManagerAttributes { IsAdvanced = false, ShowRangeAsPercent = false, Order = 20 })
+			);
+
+			RefreshTime = Config.Bind(
+				"General",
+				"Refresh Time",
+				10,
+				new ConfigDescription("How often to check for skill fatigue resets",
+				new AcceptableValueRange<int>(0, 300),
+				new ConfigurationManagerAttributes { IsAdvanced = false, ShowRangeAsPercent = false, Order = 19 })
 			);
 
 			// Initialize skill toast settings

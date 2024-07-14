@@ -11,7 +11,7 @@ using kvan.RaidSkillInfo.Helpers;
 
 namespace kvan.RaidSkillInfo
 {
-	[BepInPlugin("kvan.RaidSkillInfo", "kvan-RaidSkillInfo", "0.0.2")]
+	[BepInPlugin("kvan.RaidSkillInfo", "kvan-RaidSkillInfo", "0.0.3")]
 	public class Plugin : BaseUnityPlugin
 	{
 		public const int TarkovVersion = 30626;
