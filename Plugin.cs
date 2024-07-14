@@ -5,27 +5,33 @@ using UnityEngine;
 using kvan.RaidSkillInfo.Controllers;
 using BepInEx.Configuration;
 using EFT;
+using DrakiaXYZ.VersionChecker;
+using System;
+using kvan.RaidSkillInfo.Helpers;
 
 namespace kvan.RaidSkillInfo
 {
-	[BepInPlugin("kvan.RaidSkillInfo", "kvan-RaidSkillInfo", "0.0.1")]
+	[BepInPlugin("kvan.RaidSkillInfo", "kvan-RaidSkillInfo", "0.0.2")]
 	public class Plugin : BaseUnityPlugin
 	{
+		public const int TarkovVersion = 30626;
 		public static ManualLogSource LogSource;
 		public GameObject Hook;
 
 
-		internal static ConfigEntry<bool> EnableToasts;
-		internal static ConfigEntry<ESkillId> EnabledSkills;
 
 		//BaseUnityPlugin inherits MonoBehaviour, so you can use base unity functions like Awake() and Update()
 #pragma warning disable IDE0051
 		private void Awake() //Awake() will run once when your plugin loads
 #pragma warning restore IDE0051
 		{
+			if (!VersionChecker.CheckEftVersion(Logger, Info, Config))
+			{
+				throw new Exception("Invalid EFT Version");
+			}
+			MyConfig.InitializeConfig(Config);
 			//we save the Logger to our LogSource variable so we can use it anywhere, such as in our patches via Plugin.LogSource.LogInfo(), etc.
 			LogSource = Logger;
-			EnableToasts = Config.Bind("General", "Enable Skill Notifications", true, "Whether to get notification toasts when a skill's fatigue expires");
 			//uncomment the line below and replace "PatchClassName" with the class name you gave your patch. Patches must be enabled like this to work.
 			new BuffIconPatch().Enable();
 			new BuffTooltipPatch().Enable();

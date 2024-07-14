@@ -59,15 +59,12 @@ namespace kvan.RaidSkillInfo.Controllers
 		{
 			if (SkillManager == null)
 			{
-				Utils.LogError("SkillManager is null");
 				return;
 			}
 			if (!lastInRaid || SkillClasses.IsNullOrEmpty())
 			{
-				Utils.LogMessage("Raid started");
 				UpdateCache();
 				lastInRaid = true;
-				Utils.LogMessage("Cache updated");
 			}
 
 			if (SkillClasses.IsNullOrEmpty())
@@ -83,14 +80,17 @@ namespace kvan.RaidSkillInfo.Controllers
 			// Get private float
 			float fatigueTime = (float)AccessTools.Field(typeof(SkillClass), "float_4").GetValue(skill);
 			ESkillId skillId = skill.Id;
-			if (skillId == ESkillId.Endurance)
-			{
-				Utils.LogMessage($"Fatigue time: {fatigueTime} | {Time.time}");
-			}
 			if (Time.time > fatigueTime)
 			{
 				// Send toast if enabled
-				if (Plugin.EnableToasts.Value && !SpecificSkills.Contains(skillId))
+				if ((MyConfig.EnableToasts.Value == ToastsState.All
+						|| (
+							MyConfig.EnableToasts.Value == ToastsState.SpecificSkills
+							&& MyConfig.SkillToasts.ContainsKey(skillId)
+							&& MyConfig.SkillToasts[skillId].Value
+							))
+					&& !SpecificSkills.Contains(skillId)
+					)
 				{
 					NotificationManagerClass.DisplayMessageNotification($"{skill.Id} fatigue reset", ENotificationDurationType.Default);
 				}
