@@ -73,7 +73,7 @@ namespace kvan.RaidSkillInfo.Controllers
 
 			if (SkillClasses.IsNullOrEmpty())
 			{
-				Utils.LogError("No Skills found");
+				// Utils.LogError("No Skills found");
 				return;
 			}
 			SkillClasses.ExecuteForEach(CheckIndividualSkill);
@@ -85,6 +85,10 @@ namespace kvan.RaidSkillInfo.Controllers
 			float fatigueTime = (float)AccessTools.Field(typeof(SkillClass), "float_4").GetValue(skill);
 			ESkillId skillId = skill.Id;
 			float timeRemaining = fatigueTime - Time.time;
+			if (skill.Effectiveness >= 1f)
+			{
+				return;
+			}
 			if (timeRemaining < 0)
 			{
 				// Send toast if enabled
