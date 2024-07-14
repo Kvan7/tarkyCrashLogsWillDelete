@@ -59,12 +59,15 @@ namespace kvan.RaidSkillInfo.Controllers
 		{
 			if (SkillManager == null)
 			{
+				Utils.LogError("SkillManager is null");
 				return;
 			}
 			if (!lastInRaid || SkillClasses.IsNullOrEmpty())
 			{
+				Utils.LogMessage("Raid started");
 				UpdateCache();
 				lastInRaid = true;
+				Utils.LogMessage("Cache updated");
 			}
 
 			if (SkillClasses.IsNullOrEmpty())
@@ -80,23 +83,19 @@ namespace kvan.RaidSkillInfo.Controllers
 			// Get private float
 			float fatigueTime = (float)AccessTools.Field(typeof(SkillClass), "float_4").GetValue(skill);
 			ESkillId skillId = skill.Id;
+			if (skillId == ESkillId.Endurance)
+			{
+				Utils.LogMessage($"Fatigue time: {fatigueTime} | {Time.time}");
+			}
 			if (Time.time > fatigueTime)
 			{
-				// Update Skill Screen
-				// TODO: See if can remove
-				// if (skillPanelCache.TryGetValue(skillId, out SkillPanel panel))
-				// {
-				// 	panel.method_1();
-				// }
-
-				// Add to skill list
-				SpecificSkills.Add(skillId);
-
 				// Send toast if enabled
-				if (Plugin.EnableToasts.Value)
+				if (Plugin.EnableToasts.Value && !SpecificSkills.Contains(skillId))
 				{
 					NotificationManagerClass.DisplayMessageNotification($"{skill.Id} fatigue reset", ENotificationDurationType.Default);
 				}
+				// Add to skill list
+				SpecificSkills.Add(skillId);
 			}
 			else
 			{
@@ -124,15 +123,12 @@ namespace kvan.RaidSkillInfo.Controllers
 
 		private void UpdateCache()
 		{
-			// skillClasses = typeof(SkillManager).GetProperties().OfType<SkillClass>().ToList();
-
 			skillPanelCache = GetSkillPanelsBySkillClasses(SkillClasses)
 								.ToDictionary(RetrieveValue.GetSkillId, panel => panel);
 		}
 
 		private void ClearCache()
 		{
-			// skillClasses = new List<SkillClass>();
 			skillPanelCache.Clear();
 			SpecificSkills = new HashSet<ESkillId>();
 		}

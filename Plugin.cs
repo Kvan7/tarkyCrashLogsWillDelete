@@ -4,6 +4,7 @@ using kvan.RaidSkillInfo.Patches;
 using UnityEngine;
 using kvan.RaidSkillInfo.Controllers;
 using BepInEx.Configuration;
+using EFT;
 
 namespace kvan.RaidSkillInfo
 {
@@ -15,6 +16,7 @@ namespace kvan.RaidSkillInfo
 
 
 		internal static ConfigEntry<bool> EnableToasts;
+		internal static ConfigEntry<ESkillId> EnabledSkills;
 
 		//BaseUnityPlugin inherits MonoBehaviour, so you can use base unity functions like Awake() and Update()
 #pragma warning disable IDE0051
@@ -25,13 +27,14 @@ namespace kvan.RaidSkillInfo
 			LogSource = Logger;
 			EnableToasts = Config.Bind("General", "Enable Skill Notifications", true, "Whether to get notification toasts when a skill's fatigue expires");
 			//uncomment the line below and replace "PatchClassName" with the class name you gave your patch. Patches must be enabled like this to work.
-			new SkillReturnsPatch().Enable();
+			new BuffIconPatch().Enable();
+			new BuffTooltipPatch().Enable();
 
 			Hook = new GameObject("PluginHook"); // create a new gameobject instance along with its name
 			Hook.AddComponent<SkillDeterminer>(); // mount mono script to hook using the class name of your mono script
 			DontDestroyOnLoad(Hook); // add hook to DontDestroyOnLoad which will add it as a constant object into the game
 
-			LogSource.LogInfo("plugin loaded!");
+			LogSource.LogMessage("plugin loaded!");
 		}
 	}
 }
