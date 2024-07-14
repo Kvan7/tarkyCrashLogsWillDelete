@@ -40,8 +40,8 @@ namespace kvan.RaidSkillInfo.Patches
 			fatigueTimerText.transform.SetParent(buffsContainer, false);
 
 			// Set the font size, color, and alignment
-			fatigueTimerText.fontSize = 14;
-			fatigueTimerText.color = Color.white;
+			fatigueTimerText.fontSize = 16;
+			fatigueTimerText.color = Color.red;
 			fatigueTimerText.alignment = TextAlignmentOptions.Center;
 
 			// Get the skill class to determine the number of buffs
@@ -50,12 +50,43 @@ namespace kvan.RaidSkillInfo.Patches
 			{
 				if (TimeRemaining.TryGetValue(skillClass.Id, out float timeRemaining))
 				{
-					fatigueTimerText.text = timeRemaining >= 0 && timeRemaining < 1e5f ? $"[{timeRemaining:F0}]" : string.Empty;
+					fatigueTimerText.text = timeRemaining >= 0 && timeRemaining < 1e5f ? timeRemaining.ToString("F0") : string.Empty;
 				}
 			}
 
 			// Position the text element as the first or last sibling
 			fatigueTimerText.transform.SetAsLastSibling(); // or use SetAsLastSibling() if you want it at the end
+		}
+	}
+
+
+	internal class SkillFatigueTimerTooltipPatch : ModulePatch
+	{
+		// Dictionary to store the original effectiveness for each skill ID
+		private static readonly Dictionary<ESkillId, float> originalEffectivenessMap = new Dictionary<ESkillId, float>();
+
+		protected override MethodBase GetTargetMethod()
+		{
+			return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), new Type[] { typeof(SkillClass) });
+		}
+
+		[PatchPostfix]
+		static void Postfix(SkillTooltip __instance, SkillClass skill)
+		{
+			if (!Utils.InRaid())
+			{
+				return;
+			}
+
+			if (skill != null && SkillFatigueTimerPatch.TimeRemaining.TryGetValue(skill.Id, out float timeRemaining))
+			{
+				TextMeshProUGUI tooltipDescription = AccessTools.Field(typeof(SkillTooltip), "_description").GetValue(__instance) as TextMeshProUGUI;
+
+				if (timeRemaining >= 0 && timeRemaining < 1e5f)
+				{
+					tooltipDescription.text += $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
+				}
+			}
 		}
 	}
 }
