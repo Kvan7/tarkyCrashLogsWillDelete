@@ -152,7 +152,6 @@ namespace kvan.RaidSkillInfo.Patches
 			{
 				return;
 			}
-
 			string newLine = $"\n<color=#C40000FF>Time remaining: {timeRemaining:F0} seconds</color>";
 			string[] lines = tooltipDescription.text.Split('\n');
 
@@ -177,7 +176,7 @@ namespace kvan.RaidSkillInfo.Patches
 			else
 			{
 				// No line with our text, add it
-				if (timeRemaining >= 0 && timeRemaining < 1e5f)
+				if (MyConfig.ShowTimeRemaining.Value && timeRemaining >= 0 && timeRemaining < 1e5f)
 				{
 					tooltipDescription.text += newLine;
 				}
