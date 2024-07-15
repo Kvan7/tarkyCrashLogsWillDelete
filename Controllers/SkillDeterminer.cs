@@ -7,7 +7,6 @@ using UnityEngine;
 using kvan.RaidSkillInfo.Helpers;
 using Comfort.Common;
 using EFT.UI;
-using Newtonsoft.Json;
 using kvan.RaidSkillInfo.Patches;
 
 namespace kvan.RaidSkillInfo.Controllers
@@ -15,7 +14,6 @@ namespace kvan.RaidSkillInfo.Controllers
 	public class SkillDeterminer : MonoBehaviour
 	{
 		private SkillManager SkillManager => Utils.GetActiveSkillManager();
-		private GameWorld GameWorld => Singleton<GameWorld>.Instance;
 		private float elapsedTime = 0f;
 
 		private bool lastInRaid = false;
