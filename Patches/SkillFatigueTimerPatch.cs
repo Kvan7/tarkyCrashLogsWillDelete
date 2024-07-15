@@ -8,6 +8,7 @@ using kvan.RaidSkillInfo.Helpers;
 using System;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 namespace kvan.RaidSkillInfo.Patches
 {
@@ -157,7 +158,13 @@ namespace kvan.RaidSkillInfo.Patches
 
 			if (lines.Length > 0 && lines[lines.Length - 1].StartsWith("<color=#C40000FF>Time remaining:"))
 			{
-				if (timeRemaining >= 0 && timeRemaining < 1e5f)
+				if (!MyConfig.ShowTimeRemaining.Value)
+				{
+					// Since last line has our text, means user changed setting while we had added to it.
+					// Need to remove it then
+					lines = lines.Take(lines.Length - 1).ToArray();
+				}
+				else if (timeRemaining >= 0 && timeRemaining < 1e5f)
 				{
 					lines[lines.Length - 1] = newLine.Trim();
 				}
@@ -169,6 +176,7 @@ namespace kvan.RaidSkillInfo.Patches
 			}
 			else
 			{
+				// No line with our text, add it
 				if (timeRemaining >= 0 && timeRemaining < 1e5f)
 				{
 					tooltipDescription.text += newLine;
