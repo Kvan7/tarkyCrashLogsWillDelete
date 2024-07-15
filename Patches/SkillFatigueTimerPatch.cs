@@ -83,6 +83,11 @@ namespace kvan.RaidSkillInfo.Patches
 			// Position the text element as the first or last sibling
 			fatigueTimerText.transform.SetAsLastSibling(); // or use SetAsFirstSibling() if you want it at the start
 
+			// Update the text with the initial time
+			if (TimeRemaining.TryGetValue(skillClass.Id, out float timeRemaining))
+			{
+				UpdateFatigueTimerText(skillClass.Id, timeRemaining);
+			}
 		}
 
 		private static void UpdateFatigueTimerText(ESkillId skillId, float timeRemaining)
